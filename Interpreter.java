@@ -1,5 +1,5 @@
 /* *** This file is given as part of the programming assignment. *** */
-
+import java.util.ArrayList;
 public class Interpreter {
 
     // a scanner...
@@ -31,6 +31,62 @@ public class Interpreter {
         }
     }
 
+    class ExprTreeNode{
+      protected ExprTreeNode left;
+      protected ExprTreeNode right;
+      public String print(){
+        return left.print()+" "+right.print();
+      }
+      public void AddLeft(ExprTreeNode n){
+        this.left=n;
+      }
+      public void AddRight(ExprTreeNode n){
+        this.right=n;
+      }
+    }
+
+    class AtomTreeNode extends ExprTreeNode{
+      
+    }
+
+    class NumberTreeNode extends AtomTreeNode{
+      private int value;
+      public void set(int i){
+        value=i;
+      }
+      @Override public String print(){
+        return ""+value;
+      }
+      public NumberTreeNode(int i){
+        value =i;
+      }
+    }
+
+    class IdTreeNode extends AtomTreeNode{
+      private String value;
+      public IdTreeNode(String s){
+        value=s;
+      }
+      public void set(String s){
+        value=s;
+      }
+      @Override public String print(){
+        return value;
+      }
+    }
+
+    class ListTreeNode extends ExprTreeNode{
+      @Override public String print(){
+        return "( "+left.print()+" "+right.print()+" )";
+      }
+    }
+
+    class ExprListTreeNode extends ListTreeNode{
+      private ArrayList<ExprTreeNode> arr; 
+      public void add(ExprTreeNode e){
+        arr.add(e);
+      }
+    } 
 
     public Interpreter(String args[]) {
         scanner = new Scan(args);
@@ -70,6 +126,7 @@ public class Interpreter {
             parse_error("bad start of expression:"+tok);
             /*NOTREACHED*/
         }
+        
     }
     
     void list() throws ParsingExpressionException {
