@@ -1,5 +1,7 @@
 ++++ running Little Lisp
 Welcome to Little Lisp.
-> > 
+> (show)
+
+> 
 Bye.
 ++++ done running Little Lisp

@@ -1,37 +1,29 @@
 ++++ running Little Lisp
 Welcome to Little Lisp.
-> (
-(
-b
-> (
-(
-b
-> (
-(
-> (
-(
-> (
-> (
-> (
-z
-(
-(
-b
-> (
-(
-z
-(
-(
-b
-> 1
-(
-(
-> (
-(
-> 3
-(
-> 1
-2
+> (car (quote (a b)))
+
+> (cdr (quote (a b)))
+
+> (car (quote (a)))
+
+> (cdr (quote (a)))
+
+> (car ())
+
+> (cdr ())
+
+> (cons (quote z) (quote (a b)))
+
+> (cons (quote (y z)) (quote (a b)))
+
+> (cons 1 (quote (2)))
+
+> (cons () ())
+
+> (cons 3 ())
+
+> (cons 1 2)
+
 > 
 Bye.
 ++++ done running Little Lisp

@@ -32,17 +32,15 @@ public class Interpreter {
     }
 
     class ExprTreeNode{
-      protected ExprTreeNode left;
-      protected ExprTreeNode right;
-      public String print(){
-        return left.print()+" "+right.print();
+      protected ExprTreeNode e;
+      @Override public String toString(){
+        return "ExprTreeNode";
       }
-      public void AddLeft(ExprTreeNode n){
-        this.left=n;
-      }
-      public void AddRight(ExprTreeNode n){
-        this.right=n;
-      }
+	  public ExprTreeNode(){
+	  }
+	  public ExprTreeNode(ExprTreeNode n){
+		  e=n;
+	  }
     }
 
     class AtomTreeNode extends ExprTreeNode{
@@ -54,7 +52,7 @@ public class Interpreter {
       public void set(int i){
         value=i;
       }
-      @Override public String print(){
+      @Override public String toString(){
         return ""+value;
       }
       public NumberTreeNode(int i){
@@ -70,22 +68,41 @@ public class Interpreter {
       public void set(String s){
         value=s;
       }
-      @Override public String print(){
+      @Override public String toString(){
         return value;
       }
     }
 
     class ListTreeNode extends ExprTreeNode{
-      @Override public String print(){
-        return "( "+left.print()+" "+right.print()+" )";
-      }
+      @Override public String toString(){
+        if(e==null){
+			return "()";
+		}
+		return "(" + e + ")";
+	}
+	  public ListTreeNode(){
+	  }
+	  public ListTreeNode(ListTreeNode n){
+		  e=n;
+	  }		  
     }
 
     class ExprListTreeNode extends ListTreeNode{
-      private ArrayList<ExprTreeNode> arr; 
+      private ArrayList<ExprTreeNode> arr;
+	  public ExprListTreeNode(){
+		arr = new ArrayList<ExprTreeNode>();
+	  }
       public void add(ExprTreeNode e){
         arr.add(e);
       }
+	  @Override public String toString(){
+		String s = "";
+		for(ExprTreeNode e: arr){
+			s += e + " ";
+		}
+		s=s.substring(0,s.length()-1);
+		return s;
+	  }
     } 
 
     public Interpreter(String args[]) {
@@ -99,13 +116,14 @@ public class Interpreter {
             if ( is(TK.EOF) ) break;
             try {
                 // read and parse expression.
-                expr();
+                System.out.println(expr());
                 // in later parts:
                 //   print out expression
                 //   evaluate expression
                 //   print out value of evaluated expression
                 // note that an error in evaluating (at any level) will
                 // return nil and evaluation will continue.
+				System.out.println();
             }
             catch (ParsingExpressionException e) {
                 System.out.println( "trying to recover from parse error");
@@ -114,51 +132,63 @@ public class Interpreter {
         }
     }
 
-    void expr() throws ParsingExpressionException {
-        if( is(TK.LPAREN) )
-            list();
+    ExprTreeNode expr() throws ParsingExpressionException {
+        ExprTreeNode e = new ExprTreeNode();
+		if( is(TK.LPAREN) )
+            e=list();
         else if( is(TK.ID) || is(TK.NUM) )
-            atom();
+            e=atom();
         else if( is(TK.QUOTE) ) {
 // add some code here in part 6
+			e = new IdTreeNode(tok.string);
+
+			scan();
         }
         else {
             parse_error("bad start of expression:"+tok);
             /*NOTREACHED*/
         }
-        
+        return e;
     }
     
-    void list() throws ParsingExpressionException {
-        level++;
+    ListTreeNode list() throws ParsingExpressionException {
+        ListTreeNode n = new ListTreeNode();
+		level++;
         mustbe(TK.LPAREN);
-		    if(! is(TK.RPAREN)){
-          expr_list();
-        }
+		if(! is(TK.RPAREN)){
+          		ListTreeNode e = expr_list();
+				n = new ListTreeNode(e);
+      	}
         level--;
         mustbe(TK.RPAREN);
+		return n;
     }
 	
-	void expr_list() throws ParsingExpressionException{
-		expr();
+	ExprListTreeNode expr_list() throws ParsingExpressionException{
+		ExprListTreeNode n = new ExprListTreeNode();
 		while(! is(TK.RPAREN)){
-      System.out.println(tok.string);
-			expr();
+			ExprTreeNode e = expr();
+			n.add(e);
 		}
+		return n;
 	}
     
     
-    void atom() throws ParsingExpressionException {
-        if( is(TK.ID) ) {
+    AtomTreeNode atom() throws ParsingExpressionException {
+     	AtomTreeNode n = new AtomTreeNode();
+		if( is(TK.ID) ) {
+			n = new IdTreeNode(tok.string);
             mustbe(TK.ID);
         }
         else if( is(TK.NUM) ) {
+			n = new NumberTreeNode(Integer.parseInt(tok.string));
             mustbe(TK.NUM);
-        }
+		}
         else {
             parse_error("oops -- bad atom");
             /*NOTREACHED*/
         }
+		return n;
     }
     
     // is current token what we want?

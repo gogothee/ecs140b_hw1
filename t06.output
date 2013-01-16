@@ -1,76 +1,37 @@
 ++++ running Little Lisp
 Welcome to Little Lisp.
-> (
-> (
-(
-> (
-(
-b
-> (
-(
-4
-5
-> (
-(
-2
-1
-(
-6
-> (
-(
-2
-1
-(
-(
-6
-> (
-(
-2
-1
-(
-(
-(
-6
-3
-> (
-(
-z
-(
-(
-b
-> (
-(
-(
-z
-(
-(
-b
-> (
-1
-(
-(
-> (
-(
-(
-> (
-3
-(
-> (
-(
-(
-(
-(
-(
-b
-c
-(
-(
-(
-> 4
-> 4
-5
-> (
-5
+> (length ())
+
+> (length (quote (a)))
+
+> (length (quote (a b)))
+
+> (length (quote (3 4 5)))
+
+> (length (quote ((3 2 1) (4 6))))
+
+> (length (quote ((3 2 1) () (4 6))))
+
+> (length (quote ((3 2 1) () (((()))) (4 6) 3)))
+
+> (length (cons (quote z) (quote (a b))))
+
+> (length (cons (quote (y z)) (quote (a b))))
+
+> (length (cons 1 (quote (2))))
+
+> (length (cons () ()))
+
+> (length (cons 3 ()))
+
+> (length (list (length ()) (length (quote (a b c))) () (quote (((()))))))
+
+> (length 4)
+
+> (length 4 5)
+
+> (length (4 5))
+
 > 
 Bye.
 ++++ done running Little Lisp

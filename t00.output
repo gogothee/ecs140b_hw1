@@ -1,6 +1,17 @@
 ++++ running Little Lisp
 Welcome to Little Lisp.
-> > 9
-> > > > > 
+> ()
+
+> (8 9)
+
+> a
+
+> abc
+
+> 3
+
+> 47
+
+> 
 Bye.
 ++++ done running Little Lisp
