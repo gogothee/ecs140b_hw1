@@ -1,0 +1,7 @@
+; good tests of printing
+
+()
+(())
+((()))
+
+(()())

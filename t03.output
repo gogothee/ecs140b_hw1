@@ -1,0 +1,45 @@
+++++ running Little Lisp
+Welcome to Little Lisp.
+> > a
+> 8
+> (
+> (
+> (
+a
+> scan: token too long -- truncated to nosuchfuncti
+8
+> > > (
+> 1
+> 1
+2
+> 1
+2
+3
+> 1
+2
+3
+4
+> (
+a
+> (
+b
+1
+2
+(
+5
+6
+3
+(
+c
+> (
+(
+> (
+(
+(
+(
+(
+(
+4
+> > 
+Bye.
+++++ done running Little Lisp

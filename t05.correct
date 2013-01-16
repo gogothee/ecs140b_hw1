@@ -1,0 +1,30 @@
+++++ running Little Lisp
+Welcome to Little Lisp.
+> (car (quote (a b)))
+a
+> (cdr (quote (a b)))
+(b)
+> (car (quote (a)))
+a
+> (cdr (quote (a)))
+()
+> (car ())
+()
+> (cdr ())
+()
+> (cons (quote z) (quote (a b)))
+(z a b)
+> (cons (quote (y z)) (quote (a b)))
+((y z) a b)
+> (cons 1 (quote (2)))
+(1 2)
+> (cons () ())
+(())
+> (cons 3 ())
+(3)
+> (cons 1 2)
+cons's 2nd argument is non-list
+()
+> 
+Bye.
+++++ done running Little Lisp

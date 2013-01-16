@@ -1,0 +1,14 @@
+#!/bin/csh -f
+# a simple way to run Little Lisp
+# usage: ``run X''
+#        where X is prefix of file containing Little Lisp program
+# e.g.,  ``run t5'' will run on t5.l
+
+if( $#argv != 1 ) then
+	echo usage: $0 prefix
+	exit(1)
+endif
+
+echo ++++ running Little Lisp
+java LL < $1.l
+echo ++++ done running Little Lisp

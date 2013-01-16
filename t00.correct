@@ -1,0 +1,20 @@
+++++ running Little Lisp
+Welcome to Little Lisp.
+> ()
+()
+> (8 9)
+can't use number as function name
+()
+> a
+"a" is not bound as a parameter
+()
+> abc
+"abc" is not bound as a parameter
+()
+> 3
+3
+> 47
+47
+> 
+Bye.
+++++ done running Little Lisp

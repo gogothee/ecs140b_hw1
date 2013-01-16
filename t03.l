@@ -1,0 +1,22 @@
+(quote)
+(quote a)
+(quote 8)
+(quote (a))
+(quote ())
+(quote (quote a))
+
+(nosuchfunction 8)
+(noway)
+
+(list)
+(list ())
+(list 1)
+(list 1 2 )
+(list 1 2 3 )
+(list 1 2 3 4 )
+(list (quote a))
+(list (quote b) 1 2 (list 5 6) 3 (quote c) )
+(list (quote (((((())))))))
+(list (list (list (list (list (list (list 4)))))))
+
+(nope)
