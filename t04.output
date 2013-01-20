@@ -1,27 +1,55 @@
 ++++ running Little Lisp
 Welcome to Little Lisp.
 > (listp)
+listp given 0 args, but needs 1 args
+()
 > (listp 8)
+#class Interpreter$NumberTreeNode
+(8)
 > (listp (quote bb))
+#class Interpreter$ExprTreeNode
+(bb)
 > (listp (quote (a b c)))
+#class Interpreter$ExprTreeNode
+((a b c))
 > (listp ())
+#class Interpreter$ListTreeNode
+(())
 > (atom)
+null
 > (atom 8)
+null
 > (atom (quote bb))
+null
 > (atom (quote (a b c)))
+null
 > (atom ())
+null
 > (null ())
+null
 > (null (quote bb))
+null
 > (null (quote (a)))
+null
 > (null 88)
+null
 > (integerp 3)
+null
 > (integerp (quote bb))
+null
 > (integerp (quote (a)))
+null
 > (integerp ())
+null
 > (integerp (quote ()))
+null
 > ((show))
+(show)
 > ((quote 8))
+(quote 8)
 > (())
+null car in eval
+()
 > 
 Bye.
 ++++ done running Little Lisp

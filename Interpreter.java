@@ -44,6 +44,12 @@ public class Interpreter {
 	  	public ExprTreeNode eval(){
 			return child.eval(); 
 	  	}
+		public ExprTreeNode getLeaf(){
+			if(child != null){
+				return child.getLeaf();
+			}
+			return this;
+		}
     }
 
     class AtomTreeNode extends ExprTreeNode{
@@ -118,10 +124,13 @@ public class Interpreter {
     }
 
     class ExprListTreeNode extends ListTreeNode{
-        private ArrayList<ExprTreeNode> arr;
+        public ArrayList<ExprTreeNode> arr;
 	    public ExprListTreeNode(){
 			arr = new ArrayList<ExprTreeNode>();
 	  	}
+		public ExprListTreeNode(ArrayList<ExprTreeNode> a){
+			arr = a;
+		}
       	public void add(ExprTreeNode e){
         	arr.add(e);
       	}
@@ -133,16 +142,35 @@ public class Interpreter {
 			s=s.substring(0,s.length()-1);
 			return s;
 	  	}
+		@Override public ExprTreeNode getLeaf(){
+			if(arr.size()>0){
+				return arr.get(0).getLeaf();
+			}
+			return this;
+		}
 		@Override public ExprTreeNode eval(){
 			ExprTreeNode first = arr.get(0);
 			if(first.child.child instanceof NumberTreeNode){
 				System.out.println("can't use number as function name");
 				return new ListTreeNode();
-			}else if(first.child.child instanceof IdTreeNode &&
-					! b.hash.containsKey(first.child.child)){
-				System.out.println("\""+first.child.child+"\" is not bound as a parameter");
-				return new ListTreeNode();
+			}else if(first.child.child instanceof IdTreeNode){
+				if(	! b.hash.containsKey(""+first.child.child)){
+					System.out.println("\""+first.child.child+"\" is not bound as a function");
+					return new ListTreeNode();
+				}else{
+					return b.hash.get(""+first.child.child).eval(arr);
+				}
+			}else if(first.child instanceof ListTreeNode){
+				if( first.child.child == null){
+					System.out.println("null car in eval");
+					return new ListTreeNode();
+				}else if(first.getLeaf() instanceof
+						ListTreeNode){
+					System.out.println("bad cons'ed object as function/lambda");
+					return new ListTreeNode();
+				}
 			}
+			
 			return this;
 		}
     } 
@@ -278,13 +306,15 @@ public class Interpreter {
         }
     }
 
-}
+
 
 //built in functions
 class bi_fun{
 	protected String name;
 	protected String special;
 	protected int arity;
+	public bi_fun(){
+	}
 	
 	public bi_fun(String n, String s, int a){
 		name=n;
@@ -295,18 +325,91 @@ class bi_fun{
 		System.out.format("%15s %12s %4d      builtin\n", name,
 				special, arity);
 	}
+	public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		return null;
+	}
 }
+class show_fun extends bi_fun{
+	public show_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		b.print();
+		return new ListTreeNode();
+	}
+}
+class quote_fun extends bi_fun{
+	public quote_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.isEmpty()){
+			System.out.println("quote given 0 args, but needs 1 args");
+			return new ListTreeNode();
+		}
+		return arg.get(0);
+	}
+}
+class list_fun extends bi_fun{
+	public list_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.isEmpty()){
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		return new ListTreeNode(n);
+	}
+}
+class listp_fun extends bi_fun{
+	public listp_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.isEmpty()){
+			System.out.println("listp given 0 args, but needs 1 args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		System.out.println("#"+n.arr.get(0).getClass());
+		return new ListTreeNode(n);
+	}
+}
+
+// Add built in functions into hash
 class bi_hash{
 	private ArrayList<bi_fun> arr = new ArrayList<bi_fun>();
 	public Hashtable<String, bi_fun> hash = new Hashtable<String,
 		bi_fun>();
 	public bi_hash (){
-		arr.add(new bi_fun( "show", "special", 0));
+		arr.add(new show_fun( "show", "special", 0));
 		arr.add(new bi_fun( "cons", "non-special", 2));
 		arr.add(new bi_fun( "car", "non-special", 1));
 		arr.add(new bi_fun( "cdr", "non-special", 1));
-		arr.add(new bi_fun( "quote", "special", 1));
-		arr.add(new bi_fun( "list", "non-special", -1));
+		arr.add(new quote_fun( "quote", "special", 1));
+		arr.add(new list_fun( "list", "non-special", -1));
 		arr.add(new bi_fun( "append", "non-special", -1));
 		arr.add(new bi_fun( "length", "non-special", 1));
 		arr.add(new bi_fun( "+", "non-special", 2));
@@ -321,7 +424,7 @@ class bi_hash{
 		arr.add(new bi_fun( ">=", "non-special", 2));
 		arr.add(new bi_fun( "null", "non-special", 1));
 		arr.add(new bi_fun( "atom", "non-special", 1));
-		arr.add(new bi_fun( "listp", "non-special", 1));
+		arr.add(new listp_fun( "listp", "non-special", 1));
 		arr.add(new bi_fun( "integerp", "non-special", 1));
 		arr.add(new bi_fun( "cond", "special", -1));
 		for(bi_fun b: arr){
@@ -333,4 +436,5 @@ class bi_hash{
 			b.print();
 		}
 	}
+}
 }

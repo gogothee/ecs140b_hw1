@@ -3,11 +3,14 @@ Welcome to Little Lisp.
 > ()
 ()
 > (())
+null car in eval
 ()
 > ((()))
-(())
+bad cons'ed object as function/lambda
+()
 > (() ())
-() ()
+null car in eval
+()
 > 
 Bye.
 ++++ done running Little Lisp
