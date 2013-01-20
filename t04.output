@@ -1,49 +1,27 @@
 ++++ running Little Lisp
 Welcome to Little Lisp.
 > (listp)
-
 > (listp 8)
-
 > (listp (quote bb))
-
 > (listp (quote (a b c)))
-
 > (listp ())
-
 > (atom)
-
 > (atom 8)
-
 > (atom (quote bb))
-
 > (atom (quote (a b c)))
-
 > (atom ())
-
 > (null ())
-
 > (null (quote bb))
-
 > (null (quote (a)))
-
 > (null 88)
-
 > (integerp 3)
-
 > (integerp (quote bb))
-
 > (integerp (quote (a)))
-
 > (integerp ())
-
 > (integerp (quote ()))
-
 > ((show))
-
 > ((quote 8))
-
 > (())
-
 > 
 Bye.
 ++++ done running Little Lisp

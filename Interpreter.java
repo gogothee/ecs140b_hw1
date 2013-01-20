@@ -1,7 +1,7 @@
 /* *** This file is given as part of the programming assignment. *** */
 import java.util.ArrayList;
+import java.util.*;
 public class Interpreter {
-
     // a scanner...
     private Scan scanner;
 
@@ -19,7 +19,7 @@ public class Interpreter {
     // level at which parsing;
     // used to handle the problem of scan-ahead, given interactive system.
     private int level;
-
+	private	bi_hash b=new bi_hash();
     // for error handling
     // to make this a bit friendlier in interactive environment;
     // handle parse errors by jumping back to main loop.
@@ -32,32 +32,48 @@ public class Interpreter {
     }
 
     class ExprTreeNode{
-      protected ExprTreeNode e;
-      @Override public String toString(){
-        return "ExprTreeNode";
-      }
-	  public ExprTreeNode(){
-	  }
-	  public ExprTreeNode(ExprTreeNode n){
-		  e=n;
-	  }
+      	protected ExprTreeNode child;
+      	@Override public String toString(){
+			return "" + child;
+      	}
+	  	public ExprTreeNode(){
+	  	}
+	 	public ExprTreeNode(ExprTreeNode n){
+			child = n;
+	  	}
+	  	public ExprTreeNode eval(){
+			return child.eval(); 
+	  	}
     }
 
     class AtomTreeNode extends ExprTreeNode{
-      
+ 	 public AtomTreeNode(){
+	 }
+	 @Override public String toString(){
+		return ""+child;
+	 }
+     public AtomTreeNode(AtomTreeNode n){
+		 child = n;
+	 }
+	 @Override public ExprTreeNode eval(){
+		 return child.eval();
+	 }
     }
 
     class NumberTreeNode extends AtomTreeNode{
-      private int value;
-      public void set(int i){
-        value=i;
-      }
-      @Override public String toString(){
-        return ""+value;
-      }
-      public NumberTreeNode(int i){
-        value =i;
-      }
+        private int value;
+  	    public void set(int i){
+        	value=i;
+        }
+        @Override public String toString(){
+        	return "" + value;
+      	}
+      	public NumberTreeNode(int i){
+        	value =i;
+      	}
+	  	@Override public ExprTreeNode eval(){
+	  		return this;
+	  	}
     }
 
     class IdTreeNode extends AtomTreeNode{
@@ -71,42 +87,69 @@ public class Interpreter {
       @Override public String toString(){
         return value;
       }
+	  @Override public ExprTreeNode eval(){
+		  if(! b.hash.containsKey(value)){
+				System.out.println("\""+value+"\" is not bound as a parameter");
+			return new ListTreeNode();
+		  }
+		  return this;
+	  }
     }
 
     class ListTreeNode extends ExprTreeNode{
-      @Override public String toString(){
-        if(e==null){
-			return "()";
+		@Override public String toString(){
+        	if(child==null){
+				return "()";
+			}
+			return "(" + child  + ")";
 		}
-		return "(" + e + ")";
-	}
-	  public ListTreeNode(){
-	  }
-	  public ListTreeNode(ListTreeNode n){
-		  e=n;
-	  }		  
+	  	public ListTreeNode(){
+	  	}
+		public ListTreeNode(ListTreeNode n){
+			child=n;
+	  	}
+		@Override public ExprTreeNode eval(){
+			if(child==null){
+				return this;
+			}
+			return child.eval();
+
+		}
     }
 
     class ExprListTreeNode extends ListTreeNode{
-      private ArrayList<ExprTreeNode> arr;
-	  public ExprListTreeNode(){
-		arr = new ArrayList<ExprTreeNode>();
-	  }
-      public void add(ExprTreeNode e){
-        arr.add(e);
-      }
-	  @Override public String toString(){
-		String s = "";
-		for(ExprTreeNode e: arr){
-			s += e + " ";
+        private ArrayList<ExprTreeNode> arr;
+	    public ExprListTreeNode(){
+			arr = new ArrayList<ExprTreeNode>();
+	  	}
+      	public void add(ExprTreeNode e){
+        	arr.add(e);
+      	}
+	  	@Override public String toString(){
+			String s = "";
+			for(ExprTreeNode e: arr){
+				s += e + " ";
+			}
+			s=s.substring(0,s.length()-1);
+			return s;
+	  	}
+		@Override public ExprTreeNode eval(){
+			ExprTreeNode first = arr.get(0);
+			if(first.child.child instanceof NumberTreeNode){
+				System.out.println("can't use number as function name");
+				return new ListTreeNode();
+			}else if(first.child.child instanceof IdTreeNode &&
+					! b.hash.containsKey(first.child.child)){
+				System.out.println("\""+first.child.child+"\" is not bound as a parameter");
+				return new ListTreeNode();
+			}
+			return this;
 		}
-		s=s.substring(0,s.length()-1);
-		return s;
-	  }
     } 
 
     public Interpreter(String args[]) {
         scanner = new Scan(args);
+
         while( true ) {
             System.out.print( "> ");
             System.out.flush();
@@ -116,15 +159,18 @@ public class Interpreter {
             if ( is(TK.EOF) ) break;
             try {
                 // read and parse expression.
-                System.out.println(expr());
+				ExprTreeNode e = expr();
+                System.out.println(e);
                 // in later parts:
                 //   print out expression
                 //   evaluate expression
                 //   print out value of evaluated expression
                 // note that an error in evaluating (at any level) will
                 // return nil and evaluation will continue.
-				System.out.println();
+				System.out.println(e.eval());
+
             }
+			
             catch (ParsingExpressionException e) {
                 System.out.println( "trying to recover from parse error");
                 gobble();
@@ -135,9 +181,9 @@ public class Interpreter {
     ExprTreeNode expr() throws ParsingExpressionException {
         ExprTreeNode e = new ExprTreeNode();
 		if( is(TK.LPAREN) )
-            e=list();
+            e = new ExprTreeNode(list());
         else if( is(TK.ID) || is(TK.NUM) )
-            e=atom();
+            e = new ExprTreeNode(atom());
         else if( is(TK.QUOTE) ) {
 // add some code here in part 6
 			e = new IdTreeNode(tok.string);
@@ -177,11 +223,12 @@ public class Interpreter {
     AtomTreeNode atom() throws ParsingExpressionException {
      	AtomTreeNode n = new AtomTreeNode();
 		if( is(TK.ID) ) {
-			n = new IdTreeNode(tok.string);
+			n = new AtomTreeNode( new IdTreeNode(tok.string));
             mustbe(TK.ID);
         }
         else if( is(TK.NUM) ) {
-			n = new NumberTreeNode(Integer.parseInt(tok.string));
+			n = new AtomTreeNode(new
+					NumberTreeNode(Integer.parseInt(tok.string)));
             mustbe(TK.NUM);
 		}
         else {
@@ -231,4 +278,59 @@ public class Interpreter {
         }
     }
 
+}
+
+//built in functions
+class bi_fun{
+	protected String name;
+	protected String special;
+	protected int arity;
+	
+	public bi_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+	public void print(){
+		System.out.format("%15s %12s %4d      builtin\n", name,
+				special, arity);
+	}
+}
+class bi_hash{
+	private ArrayList<bi_fun> arr = new ArrayList<bi_fun>();
+	public Hashtable<String, bi_fun> hash = new Hashtable<String,
+		bi_fun>();
+	public bi_hash (){
+		arr.add(new bi_fun( "show", "special", 0));
+		arr.add(new bi_fun( "cons", "non-special", 2));
+		arr.add(new bi_fun( "car", "non-special", 1));
+		arr.add(new bi_fun( "cdr", "non-special", 1));
+		arr.add(new bi_fun( "quote", "special", 1));
+		arr.add(new bi_fun( "list", "non-special", -1));
+		arr.add(new bi_fun( "append", "non-special", -1));
+		arr.add(new bi_fun( "length", "non-special", 1));
+		arr.add(new bi_fun( "+", "non-special", 2));
+		arr.add(new bi_fun( "-", "non-special", 2));
+		arr.add(new bi_fun( "*", "non-special", 2));
+		arr.add(new bi_fun( "/", "non-special", 2));
+		arr.add(new bi_fun( "=", "non-special", 2));
+		arr.add(new bi_fun( "/=", "non-special", 2));
+		arr.add(new bi_fun( "<", "non-special", 2));
+		arr.add(new bi_fun( ">", "non-special", 2));
+		arr.add(new bi_fun( "<=", "non-special", 2));
+		arr.add(new bi_fun( ">=", "non-special", 2));
+		arr.add(new bi_fun( "null", "non-special", 1));
+		arr.add(new bi_fun( "atom", "non-special", 1));
+		arr.add(new bi_fun( "listp", "non-special", 1));
+		arr.add(new bi_fun( "integerp", "non-special", 1));
+		arr.add(new bi_fun( "cond", "special", -1));
+		for(bi_fun b: arr){
+			hash.put(b.name,b);
+		}
+	}
+	public void print(){
+		for(bi_fun b:arr){
+			b.print();
+		}
+	}
 }
