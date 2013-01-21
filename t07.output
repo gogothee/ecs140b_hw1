@@ -5,33 +5,19 @@ Welcome to Little Lisp.
 > (append ())
 ()
 > (append () ())
-[(), ()]
-#class Interpreter$ListTreeNode
-#class Interpreter$ListTreeNode
 ()
 > (append () (quote (34 56 7)) ())
-[(), (34 56 7), ()]
-#class Interpreter$ListTreeNode
-#class Interpreter$ExprTreeNode
-#class Interpreter$ListTreeNode
-()
+(34 56 7)
 > (quote (34 56 7))
 (34 56 7)
 > (append (quote (a)))
-()
+(a)
 > (quote (a))
 (a)
 > (append (quote (a)) (quote (b)))
-[(a), (b)]
-#class Interpreter$ExprTreeNode
-#class Interpreter$ExprTreeNode
-()
+(a b)
 > (append (quote (a e)) (quote (b f)) (quote (c g)))
-[(a e), (b f), (c g)]
-#class Interpreter$ExprTreeNode
-#class Interpreter$ExprTreeNode
-#class Interpreter$ExprTreeNode
-()
+(a e b f c g)
 > (quote (a e))
 (a e)
 > (quote (b f))
@@ -41,27 +27,12 @@ Welcome to Little Lisp.
 > (append 5 (quote (c)) (quote (b)) (quote 4))
 append given non-list
 ()
-> (append ' (3) 4)
-"'" is not bound as a parameter
-can't use number as function name
-[(), (), 4]
-#class Interpreter$ListTreeNode
-#class Interpreter$ListTreeNode
-#class Interpreter$NumberTreeNode
+> (append (quote (3)) 4)
+append given non-list
 ()
-> (append ' (3) foo ' (4))
-"'" is not bound as a parameter
-can't use number as function name
+> (append (quote (3)) foo (quote (4)))
 "foo" is not bound as a parameter
-"'" is not bound as a parameter
-can't use number as function name
-[(), (), (), (), ()]
-#class Interpreter$ListTreeNode
-#class Interpreter$ListTreeNode
-#class Interpreter$ListTreeNode
-#class Interpreter$ListTreeNode
-#class Interpreter$ListTreeNode
-()
+(3 4)
 > 
 Bye.
 ++++ done running Little Lisp

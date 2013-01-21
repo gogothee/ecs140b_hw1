@@ -59,6 +59,9 @@ public class Interpreter {
 		public ArrayList<ExprTreeNode> appendFront(ExprTreeNode e){
 			return null;
 		}
+		public ArrayList<ExprTreeNode> appendEnd(ArrayList<ExprTreeNode> a){
+			return null;
+		}
     }
 
     class AtomTreeNode extends ExprTreeNode{
@@ -171,6 +174,11 @@ public class Interpreter {
 			}
 			return arr;
 		}
+		@Override public ArrayList<ExprTreeNode>
+			appendEnd(ArrayList<ExprTreeNode> array){
+			arr.addAll(array);
+			return arr;
+		}
 		@Override public ArrayList<ExprTreeNode> arr(){
 			return arr;
 		}
@@ -239,10 +247,14 @@ public class Interpreter {
         else if( is(TK.ID) || is(TK.NUM) )
             e = new ExprTreeNode(atom());
         else if( is(TK.QUOTE) ) {
-// add some code here in part 6
-			e = new IdTreeNode(tok.string);
-
+			// add some code here in part 6
+			// changed grammer by making expresiion ::=atom|list|"'" list
+			ExprListTreeNode n = new ExprListTreeNode(); 
+			n.add(new ExprTreeNode(new AtomTreeNode(new
+							IdTreeNode("quote"))));
 			scan();
+			n.add(expr());
+			e = new ListTreeNode(n);
         }
         else {
             parse_error("bad start of expression:"+tok);
@@ -647,17 +659,21 @@ class append_fun extends bi_fun{
 		for(ExprTreeNode e:arg){
 			n.add(e.eval());
 		}
-		if(n.arr.size() == 1){
-			return new ListTreeNode();
-		}else if(n.arr.get(0) instanceof
-				NumberTreeNode||n.arr.get(0) instanceof IdTreeNode){
-			System.out.println("append given non-list");
-			return new ListTreeNode();
-		}
-		System.out.println(n.arr);
+		int count = 0;
 		ExprListTreeNode o = new ExprListTreeNode();
 		for(ExprTreeNode t:n.arr){
-			System.out.println("#"+t.getClass());
+			if(t.child != null){
+				if(t.child instanceof AtomTreeNode){
+					System.out.println("append given non-list");
+					return new ListTreeNode();
+				}
+				o.appendEnd(t.child.child.arr());
+			}
+			if(count > 0 && t instanceof NumberTreeNode){
+				System.out.println("append given non-list");
+				return new ListTreeNode();
+			}
+			count++;
 		}
 
 		return new ListTreeNode(o);
