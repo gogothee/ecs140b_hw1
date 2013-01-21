@@ -1,37 +1,40 @@
 ++++ running Little Lisp
 Welcome to Little Lisp.
 > (length ())
-
+0
 > (length (quote (a)))
-
+1
 > (length (quote (a b)))
-
+2
 > (length (quote (3 4 5)))
-
+3
 > (length (quote ((3 2 1) (4 6))))
-
+2
 > (length (quote ((3 2 1) () (4 6))))
-
+3
 > (length (quote ((3 2 1) () (((()))) (4 6) 3)))
-
+5
 > (length (cons (quote z) (quote (a b))))
-
+3
 > (length (cons (quote (y z)) (quote (a b))))
-
+3
 > (length (cons 1 (quote (2))))
-
+2
 > (length (cons () ()))
-
+1
 > (length (cons 3 ()))
-
+1
 > (length (list (length ()) (length (quote (a b c))) () (quote (((()))))))
-
+4
 > (length 4)
-
+length given a non-list or an impure list (dotted pair at end of list)
+()
 > (length 4 5)
-
+length given 2 args, but needs 1 args
+()
 > (length (4 5))
-
+can't use number as function name
+0
 > 
 Bye.
 ++++ done running Little Lisp

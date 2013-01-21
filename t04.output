@@ -4,49 +4,48 @@ Welcome to Little Lisp.
 listp given 0 args, but needs 1 args
 ()
 > (listp 8)
-#class Interpreter$NumberTreeNode
-(8)
+()
 > (listp (quote bb))
-#class Interpreter$ExprTreeNode
-(bb)
+()
 > (listp (quote (a b c)))
-#class Interpreter$ExprTreeNode
-((a b c))
+-999
 > (listp ())
-#class Interpreter$ListTreeNode
-(())
+-999
 > (atom)
-null
+atom given 0 args, but needs 1 args
+()
 > (atom 8)
-null
+-999
 > (atom (quote bb))
-null
+-999
 > (atom (quote (a b c)))
-null
+()
 > (atom ())
-null
+-999
 > (null ())
-null
+-999
 > (null (quote bb))
-null
+()
 > (null (quote (a)))
-null
+()
 > (null 88)
-null
+()
 > (integerp 3)
-null
+-999
 > (integerp (quote bb))
-null
+()
 > (integerp (quote (a)))
-null
+()
 > (integerp ())
-null
+()
 > (integerp (quote ()))
-null
+()
 > ((show))
-(show)
+bad cons'ed object as function/lambda
+()
 > ((quote 8))
-(quote 8)
+bad cons'ed object as function/lambda
+()
 > (())
 null car in eval
 ()
