@@ -20,6 +20,7 @@ public class Interpreter {
     // used to handle the problem of scan-ahead, given interactive system.
     private int level;
 	private	bi_hash b=new bi_hash();
+	private symbol_table st= new symbol_table();
     // for error handling
     // to make this a bit friendlier in interactive environment;
     // handle parse errors by jumping back to main loop.
@@ -121,7 +122,10 @@ public class Interpreter {
         return value;
       }
 	  @Override public ExprTreeNode eval(){
-		  if(! b.hash.containsKey(value)){
+		  ExprTreeNode var = st.get(value);
+		  if(var !=null){
+			  return var.eval();
+		  }else if(! b.hash.containsKey(value)){
 				System.out.println("\""+value+"\" is not bound as a parameter");
 			return new ListTreeNode();
 		  }
@@ -976,8 +980,90 @@ class cond_fun extends bi_fun{
 		return new ListTreeNode();
 	}
 }
+class set_fun extends bi_fun{
+	public set_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		ExprTreeNode attr = arg.get(0);
+		ExprTreeNode value = arg.get(1).eval();
+		if(b.hash.containsKey(""+attr)){
+			System.out.println("Id is the same name as a parameter");
+			return new ListTreeNode();
+		}
+		st.set(""+attr, value);
+		return value;
+	}
+}
+class setq_fun extends bi_fun{
+	public setq_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		ExprTreeNode attr = arg.get(0);
+		ExprTreeNode value = arg.get(1);
+		if(b.hash.containsKey(""+attr)){
+			System.out.println("Id is the same name as a parameter");
+			return new ListTreeNode();
+		}
+		st.set(""+attr, value);
+		return value;
+	}
+}
+class eval_fun extends bi_fun{
+	public eval_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprTreeNode attr = arg.get(0);
+		System.out.println(attr.child.child.getClass());
+		return attr.eval();
+	}
+}
 
 // Add built in functions into hash
+class symbol_table{
+	public HashMap<String,ExprTreeNode> hash;
+	public symbol_table(){
+		hash = new HashMap<String,ExprTreeNode>();
+	}
+	public void set(String s,ExprTreeNode e){
+		hash.put(s, e);
+	}
+	public ExprTreeNode get(String s){
+		return hash.get(s);
+	}
+	public boolean isEmpty(){
+		return hash.isEmpty();
+	}
+
+}
 class bi_hash{
 	private ArrayList<bi_fun> arr = new ArrayList<bi_fun>();
 	public Hashtable<String, bi_fun> hash = new Hashtable<String,
@@ -1006,6 +1092,9 @@ class bi_hash{
 		arr.add(new listp_fun( "listp", "non-special", 1));
 		arr.add(new integerp_fun( "integerp", "non-special", 1));
 		arr.add(new cond_fun( "cond", "special", -1));
+		arr.add(new set_fun("set","non-special", 2));
+		arr.add(new setq_fun("setq","special", 2));
+		arr.add(new eval_fun("eval","non-special",1));
 		for(bi_fun b: arr){
 			hash.put(b.name,b);
 		}
