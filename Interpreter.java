@@ -62,6 +62,12 @@ public class Interpreter {
 		public ArrayList<ExprTreeNode> appendEnd(ArrayList<ExprTreeNode> a){
 			return null;
 		}
+		public int value(){
+			if(child !=null){
+				return child.value();
+			}
+			return -1;
+		}
     }
 
     class AtomTreeNode extends ExprTreeNode{
@@ -76,6 +82,12 @@ public class Interpreter {
 	 @Override public ExprTreeNode eval(){
 		 return child.eval();
 	 }
+	 @Override public int value(){
+		if(child !=null){
+				return child.value();
+			}
+			return -1;
+	 	}
     }
 
     class NumberTreeNode extends AtomTreeNode{
@@ -92,6 +104,9 @@ public class Interpreter {
 	  	@Override public ExprTreeNode eval(){
 	  		return this;
 	  	}
+		@Override public int value(){
+			return value;
+		}
     }
 
     class IdTreeNode extends AtomTreeNode{
@@ -667,7 +682,11 @@ class append_fun extends bi_fun{
 					System.out.println("append given non-list");
 					return new ListTreeNode();
 				}
-				o.appendEnd(t.child.child.arr());
+				if(t.child instanceof ExprListTreeNode){
+					o.appendEnd(t.child.arr());
+				}else{
+					o.appendEnd(t.child.child.arr());
+				}
 			}
 			if(count > 0 && t instanceof NumberTreeNode){
 				System.out.println("append given non-list");
@@ -677,6 +696,284 @@ class append_fun extends bi_fun{
 		}
 
 		return new ListTreeNode(o);
+	}
+}
+class plus_fun extends bi_fun{
+	public plus_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		return new
+			NumberTreeNode(n.arr.get(0).value() + n.arr.get(1).value());
+	}
+}
+class minus_fun extends bi_fun{
+	public minus_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		return new
+			NumberTreeNode(n.arr.get(0).value() - n.arr.get(1).value());
+	}
+}
+class mult_fun extends bi_fun{
+	public mult_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		return new
+			NumberTreeNode(n.arr.get(0).value() * n.arr.get(1).value());
+	}
+}
+class divide_fun extends bi_fun{
+	public divide_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		int divisor = n.arr.get(1).value();
+		if (divisor == 0){
+			System.out.println("divide by zero");
+			return new NumberTreeNode(-9999999);
+		}
+		return new
+			NumberTreeNode(n.arr.get(0).value() / divisor );
+	}
+}
+class equal_fun extends bi_fun{
+	public equal_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		int first =  n.arr.get(0).value();
+		int second =  n.arr.get(1).value();
+		if((!(n.arr.get(0) instanceof NumberTreeNode) || !(n.arr.get(1)
+				instanceof NumberTreeNode))&&(first==-1||second==-1)){
+			System.out.println("builtin arithmetic rel op given non-number");
+			return new ListTreeNode();
+		}
+		if(first == second){
+			return new
+				NumberTreeNode(-999);
+		}
+		return new ListTreeNode();
+	}
+}
+class notequal_fun extends bi_fun{
+	public notequal_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		int first =  n.arr.get(0).value();
+		int second =  n.arr.get(1).value();
+		if(first != second){
+			return new
+				NumberTreeNode(-999);
+		}
+		return new ListTreeNode();
+	}
+}
+class lt_fun extends bi_fun{
+	public lt_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		int first =  n.arr.get(0).value();
+		int second =  n.arr.get(1).value();
+		if(first < second){
+			return new
+				NumberTreeNode(-999);
+		}
+		return new ListTreeNode();
+	}
+}
+class gt_fun extends bi_fun{
+	public gt_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		int first =  n.arr.get(0).value();
+		int second =  n.arr.get(1).value();
+		if(first > second){
+			return new
+				NumberTreeNode(-999);
+		}
+		return new ListTreeNode();
+	}
+}
+class lte_fun extends bi_fun{
+	public lte_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		int first =  n.arr.get(0).value();
+		int second =  n.arr.get(1).value();
+		if(first <= second){
+			return new
+				NumberTreeNode(-999);
+		}
+		return new ListTreeNode();
+	}
+}
+class gte_fun extends bi_fun{
+	public gte_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.size() != arity){
+			System.out.println(name+" given "+arg.size()+" args, but needs "+arity+" args");
+			return new ListTreeNode();
+		}
+		ExprListTreeNode n = new ExprListTreeNode();
+		for(ExprTreeNode e:arg){
+			n.add(e.eval());
+		}
+		int first =  n.arr.get(0).value();
+		int second =  n.arr.get(1).value();
+		if(first >= second){
+			return new
+				NumberTreeNode(-999);
+		}
+		return new ListTreeNode();
+	}
+}
+class cond_fun extends bi_fun{
+	public cond_fun(String n, String s, int a){
+		name=n;
+		special=s;
+		arity=a;
+	}
+
+	@Override public ExprTreeNode eval(ArrayList<ExprTreeNode> arg){
+		arg.remove(0);
+		if(arg.isEmpty()){
+			return new ListTreeNode();
+		}
+		for(ExprTreeNode e:arg){
+			if(e.child != null&&e.child.child!=null){
+				ArrayList<ExprTreeNode> arr= e.child.child.arr();
+				if(arr.get(0).eval().value()==-999||arr.get(0).child.child
+						instanceof NumberTreeNode){
+					if(arr.size()==1){
+						return new NumberTreeNode(-999);
+					}
+					return arr.get(arr.size()-1).eval();
+				}
+			}
+		}
+
+		return new ListTreeNode();
 	}
 }
 
@@ -694,21 +991,21 @@ class bi_hash{
 		arr.add(new list_fun( "list", "non-special", -1));
 		arr.add(new append_fun( "append", "non-special", -1));
 		arr.add(new length_fun( "length", "non-special", 1));
-		arr.add(new bi_fun( "+", "non-special", 2));
-		arr.add(new bi_fun( "-", "non-special", 2));
-		arr.add(new bi_fun( "*", "non-special", 2));
-		arr.add(new bi_fun( "/", "non-special", 2));
-		arr.add(new bi_fun( "=", "non-special", 2));
-		arr.add(new bi_fun( "/=", "non-special", 2));
-		arr.add(new bi_fun( "<", "non-special", 2));
-		arr.add(new bi_fun( ">", "non-special", 2));
-		arr.add(new bi_fun( "<=", "non-special", 2));
-		arr.add(new bi_fun( ">=", "non-special", 2));
+		arr.add(new plus_fun( "+", "non-special", 2));
+		arr.add(new minus_fun( "-", "non-special", 2));
+		arr.add(new mult_fun( "*", "non-special", 2));
+		arr.add(new divide_fun( "/", "non-special", 2));
+		arr.add(new equal_fun( "=", "non-special", 2));
+		arr.add(new notequal_fun( "/=", "non-special", 2));
+		arr.add(new lt_fun( "<", "non-special", 2));
+		arr.add(new gt_fun( ">", "non-special", 2));
+		arr.add(new lte_fun( "<=", "non-special", 2));
+		arr.add(new gte_fun( ">=", "non-special", 2));
 		arr.add(new null_fun( "null", "non-special", 1));
 		arr.add(new atom_fun( "atom", "non-special", 1));
 		arr.add(new listp_fun( "listp", "non-special", 1));
 		arr.add(new integerp_fun( "integerp", "non-special", 1));
-		arr.add(new bi_fun( "cond", "special", -1));
+		arr.add(new cond_fun( "cond", "special", -1));
 		for(bi_fun b: arr){
 			hash.put(b.name,b);
 		}
